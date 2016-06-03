@@ -10,6 +10,7 @@ namespace AutoTOC
         {
             if (args.Length == 1)
             {
+                Console.WriteLine("Generating TOCs...");
                 string gameDir = args[0];
                 prepareToCreateTOC(gameDir + @"\BIOGame\");
                 DirectoryInfo[] dlcFolders = (new DirectoryInfo(gameDir + @"\BIOGame\DLC\")).GetDirectories();
@@ -17,6 +18,12 @@ namespace AutoTOC
                 {
                     prepareToCreateTOC(d.FullName);
                 }
+                Console.WriteLine("Done!");
+            }
+            else
+            {
+                Console.WriteLine("Requires one argument: the install dir of ME3.");
+                Console.WriteLine("(eg. \"C:\\Program Files (x86)\\Origin Games\\Mass Effect 3\")");
             }
         }
 
