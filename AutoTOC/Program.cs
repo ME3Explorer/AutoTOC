@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AutoTOC
 {
@@ -12,12 +14,17 @@ namespace AutoTOC
             {
                 Console.WriteLine("Generating TOCs...");
                 string gameDir = args[0];
-                prepareToCreateTOC(gameDir + @"\BIOGame\");
-                DirectoryInfo[] dlcFolders = (new DirectoryInfo(gameDir + @"\BIOGame\DLC\")).GetDirectories();
-                foreach (DirectoryInfo d in dlcFolders)
+                if (gameDir.EndsWith("\""))
                 {
-                    prepareToCreateTOC(d.FullName);
+                    gameDir = gameDir.Remove(gameDir.Length - 1);
                 }
+                string baseDir = Path.Combine(gameDir, @"BIOGame\");
+                string dlcDir = Path.Combine(baseDir, @"DLC\");
+                List<string> folders = (new DirectoryInfo(dlcDir)).GetDirectories().Select(d => d.FullName).ToList();
+                folders.Add(baseDir);
+
+                Task.WhenAll(folders.Select(loc => TOCAsync(loc))).Wait();
+
                 Console.WriteLine("Done!");
             }
             else
@@ -25,6 +32,11 @@ namespace AutoTOC
                 Console.WriteLine("Requires one argument: the install dir of ME3.");
                 Console.WriteLine("(eg. \"C:\\Program Files (x86)\\Origin Games\\Mass Effect 3\")");
             }
+        }
+
+        static Task TOCAsync(string tocLoc)
+        {
+            return Task.Run(() => prepareToCreateTOC(tocLoc));
         }
 
         static void prepareToCreateTOC(string consoletocFile)
